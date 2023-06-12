@@ -1,25 +1,39 @@
 'use client';
 
-import {BsGithub} from 'react-icons/bs';
-import {BsGoogle} from 'react-icons/bs';
-import Button from "@/app/components/button";
-import Input from "@/app/components/inputs/input";
-import { useCallback, useState } from "react";
+import axios from "axios";
+import { signIn, useSession } from "next-auth/react";
+import { toast } from "react-hot-toast";
+import { BsGithub } from 'react-icons/bs';
+import { BsGoogle } from 'react-icons/bs';
+import Button from "@/app/components/Button";
+import Input from "@/app/components/inputs/Input";
+import { useCallback, useState, useEffect } from "react";
 import {
     FieldValues,
     SubmitHandler,
     useForm
 } from "react-hook-form";
 import AuthSocialButton from "./AuthSocialButton";
+import { useRouter } from "next/navigation";
 
 type Vairnet = 'LOGIN' | 'REGISTER';
 
 const AuthForm = () => {
+    const session = useSession();
+    const router = useRouter();
     const [variant, setVariant] = useState('LOGIN');
     const [isLoading, setIsLoading] = useState(false);
+
+
+    useEffect(() => {
+        if (session?.status === 'authenticated') {
+            router.push('/users');
+        }
+    }, [session?.status, router]);
+
     const toggleVariant = useCallback(() => {
 
-        if (variant == 'LOGIN') {
+        if (variant === 'LOGIN') {
             setVariant('REGISTER');
         } else {
             setVariant('LOGIN');
@@ -44,19 +58,47 @@ const AuthForm = () => {
     const onSubmit: SubmitHandler<FieldValues> = (data) => {
         setIsLoading(true);
 
-        if (variant == 'REGISTER') {
-
+        if (variant === 'REGISTER') {
+            axios.post('/api/register', data)
+                .then(() => signIn('credentials', data))
+                .catch(() => toast.error('Something went wrong!'))
+                .finally(() => setIsLoading(false))
         }
 
 
-        if (variant == 'LOGIN') {
+        if (variant === 'LOGIN') {
+            signIn('credentials', {
+                ...data,
+                redirect: false
+            })
+                .then((callback) => {
+                    if (callback?.error) {
+                        toast.error('Invalid credentials');
+                    }
 
+                    if (callback?.ok && !callback?.error) {
+                        toast.success('Logged in!')
+                        router.push('/users');
+                    }
+                })
+                .finally(() => setIsLoading(false));
         }
     }
 
 
     const socialAction = (action: string) => {
         setIsLoading(true);
+        signIn(action, { redirect: false })
+            .then((callback) => {
+                if (callback?.error) {
+                    toast.error('Invalid Credentials');
+                }
+
+                if (callback?.ok && !callback?.error) {
+                    toast.success('Logged in!');
+                }
+            })
+            .finally(() => setIsLoading(false));
     }
 
     return (
@@ -80,8 +122,8 @@ const AuthForm = () => {
                 >
                     {variant == 'REGISTER' && (
                         <Input
-                            id="email"
-                            label="Email"
+                            id="name"
+                            label="Name"
                             register={register}
                             errors={errors}
                             disabled={isLoading}
@@ -111,7 +153,7 @@ const AuthForm = () => {
                             disabled={isLoading}
                             fullWidth
                             type="submit"
-                        >{variant ==  'LOGIN' ? 'Sign in' : 'Register'}</Button>
+                        >{variant == 'LOGIN' ? 'Sign in' : 'Register'}</Button>
                     </div>
 
 
@@ -142,7 +184,7 @@ const AuthForm = () => {
                         />
 
 
-                         <AuthSocialButton
+                        <AuthSocialButton
                             icon={BsGoogle}
                             onClick={() => socialAction('google')}
                         />
@@ -159,13 +201,13 @@ const AuthForm = () => {
                     text-gray-500
                 ">
                     <div>
-                        {variant == 'LOGIN' ? 'New to Messenger?' : 'Already have an account' }
+                        {variant === 'LOGIN' ? 'New to Messenger?' : 'Already have an account'}
                     </div>
                     <div
                         onClick={toggleVariant}
                         className='underline cursor-pointer'
                     >
-                        {variant == 'LOGIN' ? 'Create an account' : 'Log In'}
+                        {variant === 'LOGIN' ? 'Create an account' : 'Log In'}
                     </div>
                 </div>
             </div>
