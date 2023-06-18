@@ -1,6 +1,5 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-
+The appplication uses Next.js 13, Google & Github OAuth, MongoDB Atlas and Cloudinary. As well as Prisma, Tailwind CSS and other dependencies and libraries.
 
 
 ## Getting Started
