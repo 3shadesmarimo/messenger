@@ -4,8 +4,9 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 
 ## Getting Started
-![Capture9](https://github.com/3shadesmarimo/messenger/assets/96280882/1dcdf781-c421-4586-a82b-f1741676a89e)
+
 ![Capture](https://github.com/3shadesmarimo/messenger/assets/96280882/438842ab-8011-4ca5-8a10-8bb88c476f18)
+![Capture9](https://github.com/3shadesmarimo/messenger/assets/96280882/d3bfb6ac-b899-47dc-b074-216facd2d1fe)
 
 First, run the development server:
 
